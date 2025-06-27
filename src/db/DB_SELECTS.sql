@@ -10,70 +10,75 @@
 
 
 
-
-
-
-
--- Table 1: Your Instagram accounts
-CREATE TABLE accounts (
+-- MY MULTIPLE ACCOUNTS (e.g. Instagram A, Instagram B, Twitter A)
+CREATE TABLE my_accounts (
     id SERIAL PRIMARY KEY,
+    platform VARCHAR(50) NOT NULL, -- e.g. 'Instagram', 'Twitter'
     username VARCHAR(255) UNIQUE NOT NULL,
     full_name VARCHAR(255),
     email VARCHAR(255),
     is_verified BOOLEAN DEFAULT FALSE,
     is_business BOOLEAN DEFAULT FALSE,
-    profile_url TEXT,
-    bio TEXT,
-    followers_count INTEGER,
-    following_count INTEGER,
-    posts_count INTEGER,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-
-
-
-
-
-
-
-
-
--- Table 2: People you follow (followers)
-CREATE TABLE followed_users (
-    id SERIAL PRIMARY KEY,
-    username VARCHAR(255) UNIQUE NOT NULL,
-    full_name VARCHAR(255),
-    is_verified BOOLEAN DEFAULT FALSE,
-    is_private BOOLEAN DEFAULT FALSE,
     profile_picture_url TEXT,
     bio TEXT,
-    external_url TEXT,
     followers_count INTEGER,
     following_count INTEGER,
     posts_count INTEGER,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    
+    UNIQUE (platform, username)
 );
 
 
 
 
-
-
-
-
--- Table 3: Follow relationships (link between your accounts and followed users)
-CREATE TABLE follows (
+-- EXTERNAL PEOPLE (followers and following)
+CREATE TABLE external_users (
     id SERIAL PRIMARY KEY,
-    account_id INTEGER NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
-    followed_user_id INTEGER NOT NULL REFERENCES followed_users(id) ON DELETE CASCADE,
+    platform VARCHAR(50),
+    username VARCHAR(100),
+    full_name VARCHAR(255),    
+    is_verified BOOLEAN DEFAULT FALSE,
+    is_private BOOLEAN DEFAULT FALSE,    
+    profile_url TEXT,    
+    is_famous BOOLEAN DEFAULT FALSE,   
+    gender VARCHAR(10),     
+    followers_count INTEGER,
+    following_count INTEGER,
+    posts_count INTEGER,        
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    
+    UNIQUE (platform, username)
+);
+
+
+
+
+
+
+-- WHO I FOLLOW
+CREATE TABLE account_following (
+    id SERIAL PRIMARY KEY,
+    account_id INT REFERENCES my_accounts(id) ON DELETE CASCADE,
+    external_user_id INT REFERENCES external_users(id) ON DELETE CASCADE,
     followed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    unfollowed_at TIMESTAMP,                   -- Optional: if user is unfollowed
-    is_active BOOLEAN DEFAULT TRUE,            -- Still following = true
-    notes TEXT,                                -- Optional user notes
-    UNIQUE (account_id, followed_user_id)      -- Prevent duplicate relationships
+    notes TEXT,
+    UNIQUE (account_id, external_user_id)
+);
+
+
+
+
+
+
+-- WHO FOLLOWS ME
+CREATE TABLE account_followers (
+    id SERIAL PRIMARY KEY,
+    account_id INT REFERENCES my_accounts(id) ON DELETE CASCADE,
+    external_user_id INT REFERENCES external_users(id) ON DELETE CASCADE,
+    followed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    notes TEXT,
+    UNIQUE (account_id, external_user_id)
 );
 
 
@@ -89,6 +94,49 @@ CREATE TABLE follows (
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+sudo -u postgres psql
+CREATE DATABASE your_database_name;
+CREATE USER your_username WITH PASSWORD 'your_password';
+ALTER ROLE your_username SET client_encoding TO 'utf8';
+ALTER ROLE your_username SET default_transaction_isolation TO 'read committed';
+ALTER ROLE your_username SET timezone TO 'UTC';
+GRANT ALL PRIVILEGES ON DATABASE your_database_name TO your_username;
+\q
+
+
+
+
+psql -h localhost -U your_username -d your_database_name -f schema.sql
 
 
 
