@@ -1,3 +1,8 @@
+
+
+
+
+
 # manual_multi_account_tracker.py
 from instagrapi import Client
 import psycopg2
@@ -154,6 +159,21 @@ if __name__ == "__main__":
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+# pip install instagrapi psycopg2-binary 
+# pip install pillow
 
 
 
